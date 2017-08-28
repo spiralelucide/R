@@ -1,0 +1,130 @@
+---
+title: "Session 2 - Extra"
+author: "R Introduction Workshop"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+      html_document:   
+       toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, message=F, eval=T, fig.align = "center")
+library(tidyverse)
+library(lattice)
+library(plotly)
+
+### IMPORTANT !!! ###
+# change the path to your directory
+setwd("~/Google Drive/RLadiesColumbus/RIntro/RIntroductionWorkshop_July2017/Session2/")
+```
+
+
+# Working directory
+
+When you start R, it associates itself with a folder (i.e, directory) on your computer.    
+
+ * This folder is known as your "working directory"    
+ * When you save files, R will save them here    
+ * When you load files, R will look for them here    
+
+ 
+## See the current working directory
+ * You can print the path of your current working directory by running `getwd()`
+ * The files pane of RStudio displays the contents of your working directory
+ * You can also print the the contents of your current working directory with `dir()`
+ 
+## Change the working directory
+ * **First option:** Navigate in the files pane to a new directory. Click More > Set As Working Directory
+ * **Second option:** In the toolbar, go to Session > Set Working Directory > Choose Directory...
+ * **Third option:** Change on your script. Go
+ 
+```{r, eval=F}
+# this is for Mac/Linux
+setwd("~/change/this/path/to your/Session 3 folder path") 
+
+# this is for windows
+setwd("C:/change/this/path/to your/Session 3 folder path") # note / instead of \ in windows 
+```
+
+Third option allows you to keep track of the working directory you are working in. 
+
+# Reading files into R
+You need to "load" your data in the R environment to be able work with it. You also need to assign it to a variable to save the data in your R environment. Otherwise you will only print it to your console. When importing your data you need to know:   
+
+ 1. **Path of your file.** Where is this file located in your computer? If the file is already in your working directory `"./filename"` or ``"filename"` will be sufficient. Note that you can also go up with `"../"` or down with `"./sub folder name/filename"`. Or you can give the main path to your file.
+ 
+ 2. **File type.** What type of file is this? Is it txt, csv, xls? Usually the file extension would give you the hint. R has a variety of packages and functions to read specific file types. If the extension of your file seems unusual and you cannot open the file with a text editor, or when opened the file doesn't seem to be human readable, look at online resources to find the appropriate R package or function to read that file in.  
+
+ 3. **Delimiter of the file.** What character defines the column separation? Comma? Semicolon? Tab? Space (white space)? Or something else? **This is very important!** If the same delimiter character appears in one of the cells, R will try to separate that as a column and having unequal number of columns in different rows will cause problems. And R will not be able to read that file in. 
+ 
+ 4. **Does your file have a header?** By default `read.table()` function will assume that your data set does not have a header. You need to change the argument to `header=T` if your data has a header. You should also make sure you do not have special characters in your column names.
+ 
+### **First option:**     
+Go to Environment pane, Import Dataset > Choose file type > Browse > Make your adjustments > Import
+
+### **Second option:**    
+
+In the toolbar, go to File > Import Dataset > Choose file type > Browse > Make your adjustments > Import   
+
+### **Third option:**   
+
+Read file on your script/console. For this option you need to know the file type and the separator of that file to use the correct function. The most generalized function to read data is `read.table()`. You always need to assign the output of this function to a variable, otherwise you will not be able to load your data in your R environment
+ 
+**Example:** Load `weather.txt`     
+This text file is separated by tab and has a header. Also I want the columns with strings to be the character class, and not the factor class.  Run the `read.table()` function without assigning to a variable. What happens? 
+
+```{r}
+weather <- read.table("./weather.txt", # path to file
+                      sep="\t",        # delimiter set to tab
+                      header = T,      # file has header, T is same as TRUE
+                      stringsAsFactors = F) # set strings as character
+head(weather, 3) # show first 3 rows
+```
+
+It seems like `weather` isn't a very clean data set and has many missing data points shown with `.`, which should be `NA`. Although, I can replace those `.`s with `NA`s while I'm cleaning the data, wouldn't it be nice to just replace them `NA` when reading the data in? Well I can easily do that with `na.strings` argument!
+
+```{r}
+weather <- read.table("./weather.txt", # path to file
+                      sep="\t",        # delimiter set to tab
+                      header = T,      # file has header, T is same as TRUE
+                      stringsAsFactors = F, # set strings as character
+                      na.strings = ".") # periods are missing values, read them as NA !
+head(weather, 3) # show first 3 rows
+```
+
+
+**Example:** Load `wages.csv`     
+This text file is separated by comma and has a header. The strings seem to be defining categories and therefore I want the columns with strings to be factor class. `stringsAsFactors = T` is the default setting. Hence, I don't need to assign it, but will do it for the purpose of the exercise. Because this is a csv file, you can use the `read.table()` function as well as the `read.csv()` function. When using the `read.table()` you need to specify the delimiter with `sep = ","`. This is not necessary for `read.csv()` because the default is already `sep=","`. Similarly, when using `read.csv` you also do not have to specify the header if the data has it, because the default is `header=T`. 
+
+```{r}
+wages <- read.table("./wages.csv", 
+                      sep=",",         # delimiter set to comma
+                      header = T,      # file has header, T is same as TRUE
+                      stringsAsFactors = T) # set strings as factor
+head(wages, 3)
+
+wages2 <- read.csv("./wages.csv", 
+                   header = T, 
+                   stringsAsFactors = T) 
+head(wages2, 3)
+```
+
+**Your turn:**    
+
+ 1. Check `?read.table` help file. What are the other base R functions that read specific types of data? What about the arguments and the default settings?      
+ 
+ 2. Load `crime.csv` using `read.table()` or `read.csv()` and assign it to variable `crime`.     
+ 3. What is the mean murder rate in the US according to `crime` data?    
+ 
+ 4. Load the first sheet of `titanic.xlsx` using the Import Dataset button in RStudio.
+ 5. In total how many females perished in titanic? 
+
+# More options to read data in R    
+
+There are many other packages that provide other functions that let you read your data in your R environment.     
+Here some examples:    
+1. **`readr` package:** Provides a *kinda fast* and `tidyverse` friendly way to read rectangular data (like 'csv', 'tsv', and 'fwf'). We'll talk more about the `tidyverse` in the next session.       
+2. **`data.table` package:** Provides the fastest function to read data: `fread()` function. Best way to deal with very large datasets (500 MB and larger). `data.table()` also provides other functions and objects to manipulate data. However it has a cryptic syntax, making it less friendly to learn.           
+3. **`readxl` package:** The readxl package makes it easy to get data out of Excel and into R.      
+
+

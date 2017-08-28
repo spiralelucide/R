@@ -6,7 +6,7 @@ swirl()
 head(flags)
 dim(flags)
 class(flags)
-#lapply (loop apply) takes a list as input, applies a function to each element in the list, returns a list of the same length as the original
+#lapply (loop/list apply) takes a list as input, applies a function to each element in the list, returns a list of the same length as the original
 #data frame is a list of vectors 
 cls_list <- lapply(flags,class)
 cls_list
